@@ -8,7 +8,6 @@ This project is based on the book "**Build a Large Language Model (from scratch)
 
 <br>
 
-
 **Components:**
 1. Tokenization
 2. Embeddings Model
