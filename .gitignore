@@ -2,3 +2,5 @@ model_and_optimizer.pth
 
 # GPT-2 Weights
 model.pth
+
+.venv
