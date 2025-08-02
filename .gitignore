@@ -3,4 +3,8 @@ model_and_optimizer.pth
 # GPT-2 Weights
 model.pth
 
+# Virtual Environmetn
 .venv
+
+# GPT 2 Folder - Too large in size
+gpt2/
