@@ -8,3 +8,6 @@ model.pth
 
 # GPT 2 Folder - Too large in size
 gpt2/
+
+# Saved classifier model
+review_classifier.pth
