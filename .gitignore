@@ -11,3 +11,5 @@ gpt2/
 
 # Saved classifier model
 review_classifier.pth
+
+gpt2-medium355M-sft.pth
