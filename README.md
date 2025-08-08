@@ -37,5 +37,3 @@ This is the structure by which the project follows, each divided into 3 stages, 
 
 2. **Personal Assistant:** we use the ***chainlit*** library to visualize the chat interface with the model. This can be found in a file called 'app.py', simply run:
 <br> `pip install chainlit` then use `chainlit run app.py` to run the file.
-
-## Folders Index
