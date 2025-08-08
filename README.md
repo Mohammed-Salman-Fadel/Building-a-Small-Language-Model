@@ -15,10 +15,12 @@ This project is based on the book "**Build a Large Language Model (from scratch)
 3. Multi-Head Self- Attention Mechanism
 4. Transformer Block
 5. Decoding Loop
+6. Fine-tuned classifier
+7. Fine-tuned personal assistant
 
 
 
-### TL;DR: The code implementation of each chapter can be found on the respective labelled notebooks, however if you want to dive directly into the final product, the final GPT model is implemented on the "GPTModel" notebook.
+### TL;DR: The code implementation of each chapter can be found on the respective labelled notebooks, however if you want to dive directly into the final product, the final GPT model is implemented on the "GPTModel" notebook. Run the "ch06" notebook to access the fine-tuned classifier.
 
 ---
 ## Project Guide
@@ -30,3 +32,8 @@ This is the structure by which the project follows, each divided into 3 stages, 
 <i>Google Drive Link:</i> https://drive.google.com/drive/folders/1oZ_Ih78TdHixmtUB3Hnr34c6uxGkmfzw?usp=sharing
 
 
+### Interface for fine-tuned results
+1. **Classifier:** we used the ***gradio*** library which can be found in the same file as the rest of the classifier code. Therefore simply run the notebook and an interface will appear at the end.
+
+2. **Personal Assistant:** we use the ***chainlit*** library to visualize the chat interface with the model. This can be found in a file called 'app.py', simply run:
+<br> `pip install chainlit` then use `chainlit run app.py` to run the file.
