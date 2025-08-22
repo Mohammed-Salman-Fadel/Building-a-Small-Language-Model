@@ -15,3 +15,5 @@ review_classifier.pth
 gpt2-medium355M-sft.pth
 
 models
+images
+

@@ -1,0 +1,6 @@
+{
+    "python.analysis.extraPaths": [
+        "./GPT download",
+        "./GPT_download"
+    ]
+}
