@@ -13,8 +13,8 @@ import chainlit
 
 # For llms_from_scratch installation instructions, see:
 # https://github.com/rasbt/LLMs-from-scratch/tree/main/pkg
-from previous_chapters import GPTModel
-from previous_chapters import (
+from architecture import GPTModel
+from architecture import (
     generate,
     text_to_token_ids,
     token_ids_to_text,
