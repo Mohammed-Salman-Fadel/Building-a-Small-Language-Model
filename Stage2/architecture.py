@@ -11,7 +11,8 @@ from torch.utils.data import Dataset, DataLoader
 # Chapter 2
 #####################################
 
-# Takes a long text, tokenizes it, then slices it into many sliding window chunks so the model can learn to predict the next token given the previous tokens.
+# Takes a long text, tokenizes it, then slices it into many sliding window chunks
+#  so the model can learn to predict the next token given the previous tokens.
 
 class GPTDatasetV1(Dataset):
     def __init__(self, txt, tokenizer, max_length, stride):

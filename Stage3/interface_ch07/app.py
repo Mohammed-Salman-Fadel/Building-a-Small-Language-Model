@@ -1,8 +1,3 @@
-# Copyright (c) Sebastian Raschka under Apache License 2.0 (see LICENSE.txt).
-# Source for "Build a Large Language Model From Scratch"
-#   - https://www.manning.com/books/build-a-large-language-model-from-scratch
-# Code: https://github.com/rasbt/LLMs-from-scratch
-
 from pathlib import Path
 import sys
 
@@ -11,10 +6,8 @@ import torch
 import chainlit
 
 
-# For llms_from_scratch installation instructions, see:
-# https://github.com/rasbt/LLMs-from-scratch/tree/main/pkg
-from architecture import GPTModel
-from architecture import (
+from Stage2.architecture import GPTModel
+from Stage2.architecture import (
     generate,
     text_to_token_ids,
     token_ids_to_text,
