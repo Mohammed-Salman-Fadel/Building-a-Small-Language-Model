@@ -31,6 +31,13 @@ This is the structure by which the project follows, each divided into 3 stages, 
 
 <i>Google Drive Link:</i> https://drive.google.com/drive/folders/1oZ_Ih78TdHixmtUB3Hnr34c6uxGkmfzw?usp=sharing
 
+To download all the necessary requirements, run the following:
+
+```cmd
+pip install -r requirements.txt
+```
+
+<br>
 
 ### Interface for fine-tuned results
 1. **Classifier:** we used the ***gradio*** library which can be found in the same file as the rest of the classifier code. Therefore simply run the notebook and an interface will appear at the end.
