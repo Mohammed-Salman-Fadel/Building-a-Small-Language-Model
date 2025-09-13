@@ -1,5 +1,5 @@
-# Building a Large Language Model *from scratch*
-This project is based on the book "**Build a Large Language Model (from scratch)** by *Sebastian Raschka*". 
+# Building a Large Language Model (*from scratch*)
+This project was inspired based on the book "**Build a Large Language Model (from scratch)** by *Sebastian Raschka*". 
 
 📝 The project's objectives includes the following:
 - A Working GPT-style Large Language Model
