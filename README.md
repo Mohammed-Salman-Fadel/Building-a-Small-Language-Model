@@ -24,7 +24,7 @@ This project was inspired based on the book "**Build a Large Language Model (fro
 
 ---
 ## Project Guide
-![image](/images/Build-LLMS-from-scratch.png)
+![image](/Images/Build-LLMS-from-scratch.png)
 This is the structure by which the project follows, each divided into 3 stages, the sub-stages are seperated by folders specifying which chapters are dealing with which stage.
 
 <strong>IMPORTANT NOTE:</strong> Some files are too large to be attached into this repository (such as the GPT-2 weights), therefore I have provided google drive links to those, if anyone is interested in directly accessing those files. It is also important to mention that if the code was ran correctly on your device, there is no need to manually grab those files, as it will be automatically downloaded from the source code itself.
