@@ -8,7 +8,7 @@ from torch.utils.data import Dataset, DataLoader
 
 
 #####################################
-# Chapter 2
+# Stage One
 #####################################
 
 # Takes a long text, tokenizes it, then slices it into many sliding window chunks
@@ -50,10 +50,6 @@ def create_dataloader_v1(txt, batch_size=4, max_length=256, stride=128, shuffle=
 
     return dataloader
 
-
-#####################################
-# Chapter 3
-#####################################
 
 # MultiHeaded Attention Mechanism
 class MultiHeadAttention(nn.Module):
@@ -111,10 +107,6 @@ class MultiHeadAttention(nn.Module):
 
         return context_vec
 
-
-#####################################
-# Chapter 4
-#####################################
 class LayerNorm(nn.Module):
     def __init__(self, emb_dim):
         super().__init__()
@@ -238,7 +230,7 @@ def generate_text_simple(model, idx, max_new_tokens, context_size):
 
 
 #####################################
-# Chapter 5
+# Stage Two
 #####################################
 def generate(model, idx, max_new_tokens, context_size, temperature=0.0, top_k=None, eos_id=None):
 
