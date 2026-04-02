@@ -8,3 +8,10 @@ requests
 tqdm
 zstandard
 tiktoken
+matplotlib
+pandas
+gradio
+chainlit
+datasets
+psutil
+tensorflow

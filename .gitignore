@@ -1,19 +1,28 @@
 model_and_optimizer.pth
-
-# GPT-2 Weights
 model.pth
-
-# Virtual Environmetn
-.venv
-
-# GPT 2 Folder - Too large in size
-gpt2/
-
-# Saved classifier model
 review_classifier.pth
-
 gpt2-medium355M-sft.pth
 
-models
-images
+# Virtual environment
+.venv/
+
+# Legacy local runtime assets
+gpt2/
+models/
+
+# Generated app state and caches
+.chainlit/
+.gradio/
+__pycache__/
+*/__pycache__/
+.ipynb_checkpoints/
+
+# Canonical project runtime folders
+artifacts/
+outputs/
+data/raw/
+data/processed/
+
+# Images generated during local work
+images/
 
