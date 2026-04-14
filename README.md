@@ -1,15 +1,56 @@
 # Building a Large Language Model (_from scratch_)
 
-This project was inspired based on the book "**Build a Large Language Model (from scratch)** by _Sebastian Raschka_".
-
 <img src="assets/images/book_cover.jpg" width="200" />
+
+<br>
 
 📝 The project's objectives includes the following:
 
-- A Working GPT-style Large Language Model
-- End-to-End Pretraining Pipeline
-- Fine-Tuned Model for Practical Tasks
-  <br>
+- End-to-End Pretraining Pipeline.
+
+- A Working GPT-style Large Language Model.
+
+- A classifier model.
+
+- Functioning [Cli Support](#cli-support).
+
+<br>
+
+## Table of Contents
+
+1. [Introduction](#introduction).
+2. [Project Layout](#project-layout).
+3. [Learning](#learning).
+4. [Quickstart](#quickstart).
+5. [Cli Support](#cli-support).
+6. [Summary](#summary).
+
+## Introduction
+
+The original intent of this project was as a learning project and follow along to the book "**Build a Large Language Model (from scratch)** by _Sebastian Raschka_". However I decided to apply my knowledge from the book to build and finetune my own LLM built from scratch.
+
+1. `learning/` contains all the learning materials and chapter code.
+
+2. `small_llm/` contains the code of the final LLM product, and the LLM we will be training.
+
+Depending on your purpose, you can skip to the whichever section suitable.
+
+1. [Learning](#learning)
+2. [Quickstart](#quickstart)
+
+## Project Layout
+
+- `learning/` contains the chapter notebooks and learning material.
+- `small_llm/` contains the actual implementation.
+- `scripts/` contains the main training commands.
+- `artifacts/` stores saved model checkpoints.
+- `data/` stores cached datasets.
+
+## Learning
+
+This section is all about the learning components that went into building this project, in the `learning` directory, you can view all the implementation details of each individual component.
+
+Note that note all components in the learning phase made it to the final SLM
 
 **Components:**
 
@@ -21,15 +62,9 @@ This project was inspired based on the book "**Build a Large Language Model (fro
 6. Fine-tuned classifier
 7. Fine-tuned personal assistant
 
-## Project Layout
+## Quickstart
 
-- `learning/` contains the chapter notebooks and learning material.
-- `small_llm/` contains the actual implementation.
-- `scripts/` contains the main training commands.
-- `artifacts/` stores saved model checkpoints.
-- `data/` stores cached datasets.
-
-## Project Guide
+This section will give you all the commands necessary to start using the project, without wasting any time.
 
 To get started with the project, simply run the following to download all dependencies:
 
@@ -55,16 +90,27 @@ And finally, you can start the UI and communicate with the result of the model t
 chainlit run app.py
 ```
 
-![image](../Images/Build-LLMS-from-scratch.png)
-This is the structure by which the project follows, each divided into 3 stages, the sub-stages are seperated by folders specifying which chapters are dealing with which stage.
-
-<strong>IMPORTANT NOTE:</strong> Some files are too large to be attached into this repository (such as the GPT-2 weights), therefore I have provided google drive links to those, if anyone is interested in directly accessing those files. It is also important to mention that if the code was ran correctly on your device, there is no need to manually grab those files, as it will be automatically downloaded from the source code itself.
+The program should start running at your localhost, something like: `http://localhost:8000`
 
 <br>
 
-### Interface for fine-tuned results
+## CLI Support
 
-1. **Classifier:** we used the **_gradio_** library which can be found in the same file as the rest of the classifier code. Therefore simply run the notebook and an interface will appear at the end.
+I have added CLI support so you can communicate with your model through the command line interface. You can communicate with the model at any point, even prior to training so you could see the differences as the model trains and learns patterns.
 
-2. **Personal Assistant:** we use the **_chainlit_** library to visualize the chat interface with the model. This can be found in a file called 'app.py', simply run:
-   <br> `pip install chainlit` then use `chainlit run app.py` to run the file.
+Run the following command from the projects base directory and the CLI will get started:
+
+```cmd
+python scripts\chat_cli.py
+```
+
+### CLI Commands
+
+The following is the list of supported CLI commands:
+
+- `--help` prints out full list of supported commands
+- `--chat` returns to chat page
+
+<br>
+
+## Summary

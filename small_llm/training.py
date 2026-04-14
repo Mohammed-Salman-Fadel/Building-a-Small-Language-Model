@@ -107,6 +107,20 @@ def save_checkpoint(
     return checkpoint_path
 
 
+def extract_checkpoint_metadata(checkpoint_payload: Any) -> dict[str, Any]:
+    if isinstance(checkpoint_payload, dict) and isinstance(checkpoint_payload.get("metadata"), dict):
+        return dict(checkpoint_payload["metadata"])
+    return {}
+
+
+def extract_training_state(checkpoint_payload: Any) -> dict[str, Any]:
+    metadata = extract_checkpoint_metadata(checkpoint_payload)
+    training_state = metadata.get("training_state")
+    if isinstance(training_state, dict):
+        return dict(training_state)
+    return {}
+
+
 def extract_model_state_dict(checkpoint_payload: Any) -> dict[str, torch.Tensor]:
     if not isinstance(checkpoint_payload, dict):
         raise ValueError("Checkpoint payload must be a state_dict or a dict containing a state_dict.")
@@ -179,19 +193,40 @@ def train_model_simple(
     warmup_steps: int = 0,
     min_learning_rate: float | None = None,
     grad_clip: float | None = None,
+    start_epoch: int = 0,
+    start_global_step: int = -1,
+    initial_tokens_seen: int = 0,
+    initial_best_val: float = float("inf"),
+    initial_train_losses: list[float] | None = None,
+    initial_val_losses: list[float] | None = None,
+    initial_track_tokens_seen: list[int] | None = None,
 ) -> tuple[list[float], list[float], list[int]]:
     checkpoint_root = Path(checkpoint_dir) if checkpoint_dir is not None else None
     if checkpoint_root is not None:
         checkpoint_root.mkdir(parents=True, exist_ok=True)
 
-    train_losses: list[float] = []
-    val_losses: list[float] = []
-    track_tokens_seen: list[int] = []
-    tokens_seen = 0
-    global_step = -1
-    best_val = float("inf")
-    total_steps = max(1, num_epochs * len(train_loader))
+    train_losses: list[float] = list(initial_train_losses or [])
+    val_losses: list[float] = list(initial_val_losses or [])
+    track_tokens_seen: list[int] = list(initial_track_tokens_seen or [])
+    tokens_seen = initial_tokens_seen
+    global_step = start_global_step
+    best_val = initial_best_val
+    total_steps = max(1, (global_step + 1) + (num_epochs * len(train_loader)))
     base_lrs = [param_group["lr"] for param_group in optimizer.param_groups]
+    current_epoch = start_epoch
+
+    def build_checkpoint_metadata(epoch_index: int) -> dict[str, Any]:
+        checkpoint_metadata = dict(metadata or {})
+        checkpoint_metadata["training_state"] = {
+            "epoch_index": epoch_index,
+            "global_step": global_step,
+            "tokens_seen": tokens_seen,
+            "best_val": best_val,
+            "train_losses": train_losses,
+            "val_losses": val_losses,
+            "track_tokens_seen": track_tokens_seen,
+        }
+        return checkpoint_metadata
 
     def set_learning_rate(step_index: int) -> float | None:
         if min_learning_rate is None:
@@ -219,7 +254,8 @@ def train_model_simple(
         return target_lrs[0]
 
     try:
-        for epoch in range(num_epochs):
+        for epoch in range(start_epoch, start_epoch + num_epochs):
+            current_epoch = epoch
             model.train()
 
             for input_batch, target_batch in train_loader:
@@ -252,23 +288,26 @@ def train_model_simple(
                         f"LR {lr_display:.2e}"
                     )
 
+                    improved = val_loss < best_val
+                    if improved:
+                        best_val = val_loss
+
                     if checkpoint_root is not None:
                         save_checkpoint(
                             model,
                             checkpoint_root / "latest.pth",
                             optimizer=optimizer,
                             model_config=model_config,
-                            metadata=metadata,
+                            metadata=build_checkpoint_metadata(epoch),
                             is_chat_model=is_chat_model,
                         )
-                        if val_loss < best_val:
-                            best_val = val_loss
+                        if improved:
                             save_checkpoint(
                                 model,
                                 checkpoint_root / "best.pth",
                                 optimizer=optimizer,
                                 model_config=model_config,
-                                metadata=metadata,
+                                metadata=build_checkpoint_metadata(epoch),
                                 is_chat_model=is_chat_model,
                             )
 
@@ -281,7 +320,7 @@ def train_model_simple(
                 checkpoint_root / "latest.pth",
                 optimizer=optimizer,
                 model_config=model_config,
-                metadata=metadata,
+                metadata=build_checkpoint_metadata(current_epoch),
                 is_chat_model=is_chat_model,
             )
             if not (checkpoint_root / "best.pth").exists():
@@ -290,7 +329,7 @@ def train_model_simple(
                     checkpoint_root / "best.pth",
                     optimizer=optimizer,
                     model_config=model_config,
-                    metadata=metadata,
+                    metadata=build_checkpoint_metadata(current_epoch),
                     is_chat_model=is_chat_model,
                 )
         raise
@@ -301,7 +340,7 @@ def train_model_simple(
             checkpoint_root / "latest.pth",
             optimizer=optimizer,
             model_config=model_config,
-            metadata=metadata,
+            metadata=build_checkpoint_metadata(start_epoch + num_epochs - 1),
             is_chat_model=is_chat_model,
         )
         if not (checkpoint_root / "best.pth").exists():
@@ -310,7 +349,7 @@ def train_model_simple(
                 checkpoint_root / "best.pth",
                 optimizer=optimizer,
                 model_config=model_config,
-                metadata=metadata,
+                metadata=build_checkpoint_metadata(start_epoch + num_epochs - 1),
                 is_chat_model=is_chat_model,
             )
 

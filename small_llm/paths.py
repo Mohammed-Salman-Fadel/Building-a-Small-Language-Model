@@ -6,7 +6,9 @@ from typing import Iterable
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 LEARNING_DIR = REPO_ROOT / "learning"
+STAGES_DIR = LEARNING_DIR / "stages"
 CHAPTERS_DIR = LEARNING_DIR / "chapters"
+LEARNING_CONTENT_DIR = STAGES_DIR if STAGES_DIR.exists() else CHAPTERS_DIR
 
 DATA_DIR = REPO_ROOT / "data"
 RAW_DATA_DIR = DATA_DIR / "raw"
@@ -49,7 +51,17 @@ LEGACY_BASE_CHECKPOINTS = [
     REPO_ROOT / "model_and_optimizer.pth",
 ]
 
+LEGACY_SPAM_CLASSIFIER_CHECKPOINTS = [
+    REPO_ROOT / "review_classifier.pth",
+    REPO_ROOT / "models" / "review_classifier.pth",
+    LEARNING_CONTENT_DIR / "Stage3" / "review_classifier.pth",
+    CHAPTERS_DIR / "Stage3" / "review_classifier.pth",
+    REPO_ROOT / "book" / "Stage3" / "review_classifier.pth",
+]
+
 LEGACY_INSTRUCTION_DATA_PATHS = [
+    LEARNING_CONTENT_DIR / "Stage3" / "instruction_dataset" / "instruction-data.json",
+    LEARNING_CONTENT_DIR / "Stage3" / "instruction-data.json",
     CHAPTERS_DIR / "Stage3" / "instruction_dataset" / "instruction-data.json",
     CHAPTERS_DIR / "Stage3" / "instruction-data.json",
     REPO_ROOT / "Stage3" / "instruction_dataset" / "instruction-data.json",
@@ -59,6 +71,7 @@ LEGACY_INSTRUCTION_DATA_PATHS = [
 ]
 
 LEGACY_INSTRUCTION_RESPONSE_PATHS = [
+    LEARNING_CONTENT_DIR / "Stage3" / "instruction_dataset" / "instruction-data-with-response.json",
     CHAPTERS_DIR / "Stage3" / "instruction_dataset" / "instruction-data-with-response.json",
     REPO_ROOT / "Stage3" / "instruction_dataset" / "instruction-data-with-response.json",
     REPO_ROOT / "book" / "Stage3" / "instruction_dataset" / "instruction-data-with-response.json",
@@ -115,10 +128,11 @@ def get_instruction_response_candidates() -> list[Path]:
 def get_spam_dataset_candidates(split_name: str) -> list[Path]:
     return [
         SPAM_PROCESSED_DIR / f"{split_name}.csv",
+        LEARNING_CONTENT_DIR / "Stage3" / "classification_dataset" / f"{split_name}.csv",
         CHAPTERS_DIR / "Stage3" / "classification_dataset" / f"{split_name}.csv",
         REPO_ROOT / "book" / "Stage3" / "classification_dataset" / f"{split_name}.csv",
     ]
 
 
 def get_spam_classifier_checkpoint_candidates() -> list[Path]:
-    return [DEFAULT_SPAM_CLASSIFIER_LATEST, DEFAULT_SPAM_CLASSIFIER_BEST]
+    return [DEFAULT_SPAM_CLASSIFIER_LATEST, DEFAULT_SPAM_CLASSIFIER_BEST, *LEGACY_SPAM_CLASSIFIER_CHECKPOINTS]

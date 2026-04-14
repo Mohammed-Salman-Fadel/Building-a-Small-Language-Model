@@ -14,13 +14,21 @@ from small_llm.config import DEFAULT_GUTENBERG_MODEL, DEFAULT_INSTRUCTION_FINETU
 from small_llm.instruction_data import create_instruction_dataloaders, format_input
 from small_llm.paths import (
     DEFAULT_CHAT_CHECKPOINT,
+    DEFAULT_CHAT_LATEST,
     DEFAULT_GUTENBERG_BEST,
     DEFAULT_GUTENBERG_LATEST,
+    CHAT_FINETUNE_CHECKPOINT_DIR,
     ensure_project_dirs,
     get_base_checkpoint_candidates,
     resolve_first_existing,
 )
-from small_llm.training import load_model_and_metadata, save_checkpoint, train_model_simple
+from small_llm.training import (
+    extract_checkpoint_metadata,
+    extract_training_state,
+    load_model_and_metadata,
+    save_checkpoint,
+    train_model_simple,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -34,6 +42,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--eval-iter", type=int, default=DEFAULT_INSTRUCTION_FINETUNE.eval_iter)
     parser.add_argument("--seed", type=int, default=DEFAULT_INSTRUCTION_FINETUNE.seed)
     parser.add_argument("--num-workers", type=int, default=0)
+    parser.add_argument(
+        "--resume",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Resume from the latest chat fine-tuning checkpoint if it exists.",
+    )
     return parser.parse_args()
 
 
@@ -57,13 +71,29 @@ def main() -> None:
     torch.manual_seed(args.seed)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    base_checkpoint = resolve_base_checkpoint(args.base_checkpoint)
-    model, model_config, metadata = load_model_and_metadata(
-        base_checkpoint,
-        device=device,
-        fallback_config=DEFAULT_GUTENBERG_MODEL,
-    )
-    tokenizer_name = metadata.get("tokenizer_name", "gpt2") if isinstance(metadata, dict) else "gpt2"
+    resume_checkpoint = DEFAULT_CHAT_LATEST if args.resume and DEFAULT_CHAT_LATEST.exists() else None
+    training_state: dict[str, object] = {}
+
+    if resume_checkpoint is not None:
+        print(f"Resuming chat fine-tuning from {resume_checkpoint}")
+        model, model_config, checkpoint_payload = load_model_and_metadata(
+            resume_checkpoint,
+            device=device,
+            fallback_config=DEFAULT_GUTENBERG_MODEL,
+        )
+        checkpoint_metadata = extract_checkpoint_metadata(checkpoint_payload)
+        training_state = extract_training_state(checkpoint_payload)
+        tokenizer_name = checkpoint_payload.get("tokenizer_name", "gpt2") if isinstance(checkpoint_payload, dict) else "gpt2"
+        base_checkpoint = Path(checkpoint_metadata.get("base_checkpoint", "")) if checkpoint_metadata.get("base_checkpoint") else resume_checkpoint
+    else:
+        base_checkpoint = resolve_base_checkpoint(args.base_checkpoint)
+        model, model_config, checkpoint_payload = load_model_and_metadata(
+            base_checkpoint,
+            device=device,
+            fallback_config=DEFAULT_GUTENBERG_MODEL,
+        )
+        checkpoint_metadata = extract_checkpoint_metadata(checkpoint_payload)
+        tokenizer_name = checkpoint_payload.get("tokenizer_name", "gpt2") if isinstance(checkpoint_payload, dict) else "gpt2"
 
     import tiktoken
 
@@ -81,12 +111,15 @@ def main() -> None:
         lr=args.learning_rate,
         weight_decay=args.weight_decay,
     )
+    if isinstance(checkpoint_payload, dict) and isinstance(checkpoint_payload.get("optimizer_state_dict"), dict):
+        optimizer.load_state_dict(checkpoint_payload["optimizer_state_dict"])
     start_context = format_input(
         {
             "instruction": "Say hello and introduce yourself briefly.",
             "input": "",
         }
     ) + "\n\n### Response:\n"
+    resume_epoch = int(training_state.get("epoch_index", 0)) if training_state else 0
 
     train_model_simple(
         model,
@@ -99,14 +132,29 @@ def main() -> None:
         args.eval_iter,
         start_context,
         tokenizer,
-        checkpoint_dir=None,
+        checkpoint_dir=CHAT_FINETUNE_CHECKPOINT_DIR,
         model_config=model_config,
         metadata={
             "stage": "instruction-finetune",
             "base_checkpoint": str(base_checkpoint),
             "split_sizes": {key: len(value) for key, value in split_map.items()},
+            "run_config": {
+                "batch_size": args.batch_size,
+                "epochs": args.epochs,
+                "seed": args.seed,
+            },
         },
         is_chat_model=True,
+        warmup_steps=DEFAULT_INSTRUCTION_FINETUNE.warmup_steps,
+        min_learning_rate=DEFAULT_INSTRUCTION_FINETUNE.min_learning_rate,
+        grad_clip=DEFAULT_INSTRUCTION_FINETUNE.grad_clip,
+        start_epoch=resume_epoch,
+        start_global_step=int(training_state.get("global_step", -1)),
+        initial_tokens_seen=int(training_state.get("tokens_seen", 0)),
+        initial_best_val=float(training_state.get("best_val", float("inf"))),
+        initial_train_losses=list(training_state.get("train_losses", [])),
+        initial_val_losses=list(training_state.get("val_losses", [])),
+        initial_track_tokens_seen=list(training_state.get("track_tokens_seen", [])),
     )
 
     save_checkpoint(

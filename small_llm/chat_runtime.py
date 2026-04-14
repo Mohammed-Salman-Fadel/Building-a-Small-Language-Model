@@ -44,8 +44,8 @@ def _resolve_checkpoint(mode: str) -> tuple[Path | None, str]:
 
     if normalized in {"auto", "chat"}:
         chat_candidates = [
-            *get_chat_checkpoint_candidates(),
             *get_chat_training_checkpoint_candidates(),
+            *get_chat_checkpoint_candidates(),
         ]
         chat_checkpoint = resolve_first_existing(chat_candidates)
         if chat_checkpoint is not None:
