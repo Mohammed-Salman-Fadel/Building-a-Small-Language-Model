@@ -9,6 +9,7 @@ gpt2-medium355M-sft.pth
 # Legacy local runtime assets
 gpt2/
 models/
+learning/chapters/Stage2/gpt2/
 
 # Generated app state and caches
 .chainlit/
@@ -16,11 +17,14 @@ models/
 __pycache__/
 */__pycache__/
 .ipynb_checkpoints/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
 
 # Canonical project runtime folders
 artifacts/
 outputs/
 data/raw/
 data/processed/
-
 

@@ -44,6 +44,14 @@ class GenerationConfig:
     eos_id: int = 50256
 
 
+@dataclass(frozen=True)
+class SpamClassifierConfig:
+    num_classes: int = 2
+    dropout: float = 0.1
+    pad_token_id: int = 50256
+    max_length: int = 120
+
+
 GPT2_SMALL_124M = ModelConfig(
     vocab_size=50257,
     context_length=256,
@@ -94,8 +102,30 @@ GPT2_XL_1558M = ModelConfig(
     qkv_bias=True,
 )
 
-DEFAULT_GUTENBERG_MODEL = ModelConfig()
-DEFAULT_GUTENBERG_TRAINING = TrainingConfig()
+DEFAULT_GUTENBERG_MODEL = ModelConfig(
+    vocab_size=50257,
+    context_length=256,
+    emb_dim=384,
+    n_heads=6,
+    n_layers=10,
+    drop_rate=0.0,
+    qkv_bias=True,
+)
+DEFAULT_GUTENBERG_TRAINING = TrainingConfig(
+    batch_size=2,
+    max_length=256,
+    stride=128,
+    learning_rate=3e-4,
+    min_learning_rate=3e-5,
+    weight_decay=0.01,
+    num_epochs=3,
+    eval_freq=50,
+    eval_iter=20,
+    max_books=1000,
+    seed=123,
+    warmup_steps=400,
+    grad_clip=1.0,
+)
 DEFAULT_INSTRUCTION_FINETUNE = TrainingConfig(
     batch_size=4,
     max_length=256,
@@ -109,6 +139,22 @@ DEFAULT_INSTRUCTION_FINETUNE = TrainingConfig(
     max_books=None,
     seed=123,
     warmup_steps=50,
+    grad_clip=1.0,
+)
+DEFAULT_SPAM_CLASSIFIER = SpamClassifierConfig()
+DEFAULT_SPAM_CLASSIFIER_TRAINING = TrainingConfig(
+    batch_size=8,
+    max_length=120,
+    stride=120,
+    learning_rate=5e-5,
+    min_learning_rate=1e-5,
+    weight_decay=0.01,
+    num_epochs=5,
+    eval_freq=10,
+    eval_iter=20,
+    max_books=None,
+    seed=123,
+    warmup_steps=25,
     grad_clip=1.0,
 )
 DEFAULT_CHAT_GENERATION = GenerationConfig()
