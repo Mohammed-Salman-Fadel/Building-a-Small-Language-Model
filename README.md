@@ -108,9 +108,25 @@ python scripts\chat_cli.py
 
 The following is the list of supported CLI commands:
 
+**General Purpose**
+
 - `--help` prints out full list of supported commands
 - `--chat` returns to chat page
 
-<br>
+**Architectural Commands**
+
+- `--model-size`sets the gpt-2 model size (124M, 355M, ...)
+
+- **Training Stage**
+
+- `-resume` resumes the training from last checkpoint.
+- `--epochs` set the number of epoch training (default = 3).
+- `--save-freq` sets the checkpoint frequency (default = 500).
+
+**Model Configuration**
+
+- `--max-books [number of books]` sets the number of books to train the model on (0default = 1000).
+  --max-books 1000 --epochs 3 --emb-dim 512 --n-heads 8 --n-layers 12 --batch-size 1
+  <br>
 
 ## Summary

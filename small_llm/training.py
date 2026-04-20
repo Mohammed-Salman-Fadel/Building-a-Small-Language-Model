@@ -193,8 +193,10 @@ def train_model_simple(
     warmup_steps: int = 0,
     min_learning_rate: float | None = None,
     grad_clip: float | None = None,
+    save_freq: int = 0,
     start_epoch: int = 0,
     start_global_step: int = -1,
+    start_step_in_epoch: int = -1,
     initial_tokens_seen: int = 0,
     initial_best_val: float = float("inf"),
     initial_train_losses: list[float] | None = None,
@@ -211,6 +213,7 @@ def train_model_simple(
     tokens_seen = initial_tokens_seen
     global_step = start_global_step
     best_val = initial_best_val
+    step_in_epoch = start_step_in_epoch
     total_steps = max(1, (global_step + 1) + (num_epochs * len(train_loader)))
     base_lrs = [param_group["lr"] for param_group in optimizer.param_groups]
     current_epoch = start_epoch
@@ -220,6 +223,7 @@ def train_model_simple(
         checkpoint_metadata["training_state"] = {
             "epoch_index": epoch_index,
             "global_step": global_step,
+            "step_in_epoch": step_in_epoch,
             "tokens_seen": tokens_seen,
             "best_val": best_val,
             "train_losses": train_losses,
@@ -257,8 +261,13 @@ def train_model_simple(
         for epoch in range(start_epoch, start_epoch + num_epochs):
             current_epoch = epoch
             model.train()
+            resume_step = step_in_epoch if epoch == start_epoch else -1
 
-            for input_batch, target_batch in train_loader:
+            for batch_index, (input_batch, target_batch) in enumerate(train_loader):
+                if batch_index <= resume_step:
+                    continue
+
+                step_in_epoch = batch_index
                 global_step += 1
                 current_lr = set_learning_rate(global_step)
 
@@ -272,6 +281,12 @@ def train_model_simple(
                 optimizer.step()
 
                 tokens_seen += input_batch.numel()
+                should_save_latest = (
+                    checkpoint_root is not None
+                    and save_freq > 0
+                    and global_step > 0
+                    and global_step % save_freq == 0
+                )
 
                 if eval_freq > 0 and global_step % eval_freq == 0:
                     train_loss, val_loss = evaluate_model(model, train_loader, val_loader, device, eval_iter)
@@ -310,8 +325,22 @@ def train_model_simple(
                                 metadata=build_checkpoint_metadata(epoch),
                                 is_chat_model=is_chat_model,
                             )
+                elif should_save_latest:
+                    save_checkpoint(
+                        model,
+                        checkpoint_root / "latest.pth",
+                        optimizer=optimizer,
+                        model_config=model_config,
+                        metadata=build_checkpoint_metadata(epoch),
+                        is_chat_model=is_chat_model,
+                    )
+                    print(
+                        f"Saved resumable checkpoint at step {global_step:06d} "
+                        f"(epoch {epoch + 1}, batch {batch_index + 1}/{len(train_loader)})."
+                    )
 
             generate_and_print_sample(model, tokenizer, device, start_context)
+            step_in_epoch = -1
     except KeyboardInterrupt:
         print("Training interrupted. Saving the latest checkpoint before exiting...")
         if checkpoint_root is not None:

@@ -255,6 +255,7 @@ def create_gutenberg_dataloaders(
         shuffle=shuffle_train,
         drop_last=True,
         num_workers=num_workers,
+        seed=seed,
     )
     val_loader = create_token_dataloader(
         val_tokens,

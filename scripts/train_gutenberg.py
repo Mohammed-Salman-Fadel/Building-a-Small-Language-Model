@@ -38,6 +38,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--eval-iter", type=int, default=DEFAULT_GUTENBERG_TRAINING.eval_iter)
     parser.add_argument("--warmup-steps", type=int, default=DEFAULT_GUTENBERG_TRAINING.warmup_steps)
     parser.add_argument("--grad-clip", type=float, default=DEFAULT_GUTENBERG_TRAINING.grad_clip)
+    parser.add_argument("--save-freq", type=int, default=DEFAULT_GUTENBERG_TRAINING.save_freq)
     parser.add_argument("--seed", type=int, default=DEFAULT_GUTENBERG_TRAINING.seed)
     parser.add_argument("--force-rebuild", action="store_true")
     parser.add_argument(
@@ -87,6 +88,7 @@ def main() -> None:
         stride = int(run_config.get("stride", args.stride))
         batch_size = int(run_config.get("batch_size", args.batch_size))
         seed = int(run_config.get("seed", args.seed))
+        save_freq = int(run_config.get("save_freq", args.save_freq))
         metadata_override = checkpoint_metadata
     else:
         model_config = replace(
@@ -105,6 +107,7 @@ def main() -> None:
         stride = args.stride
         batch_size = args.batch_size
         seed = args.seed
+        save_freq = args.save_freq
 
     train_loader, val_loader, _, metadata = create_gutenberg_dataloaders(
         batch_size=batch_size,
@@ -138,6 +141,7 @@ def main() -> None:
             "stride": stride,
             "max_books": max_books,
             "seed": seed,
+            "save_freq": save_freq,
         },
     }
     if metadata_override:
@@ -145,6 +149,9 @@ def main() -> None:
         merged_metadata.update(training_metadata)
         training_metadata = merged_metadata
     resume_epoch = int(training_state.get("epoch_index", 0)) if training_state else 0
+    resume_step = int(training_state.get("step_in_epoch", -1)) if training_state else -1
+    if resume_checkpoint is not None and resume_step >= 0:
+        print(f"Resuming inside epoch {resume_epoch + 1} from batch {resume_step + 2}.")
     print("Starting training loop...")
 
     train_model_simple(
@@ -165,8 +172,10 @@ def main() -> None:
         warmup_steps=args.warmup_steps,
         min_learning_rate=args.min_learning_rate,
         grad_clip=args.grad_clip,
+        save_freq=save_freq,
         start_epoch=resume_epoch,
         start_global_step=int(training_state.get("global_step", -1)),
+        start_step_in_epoch=resume_step,
         initial_tokens_seen=int(training_state.get("tokens_seen", 0)),
         initial_best_val=float(training_state.get("best_val", float("inf"))),
         initial_train_losses=list(training_state.get("train_losses", [])),

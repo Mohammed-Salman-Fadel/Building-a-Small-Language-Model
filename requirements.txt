@@ -12,6 +12,8 @@ matplotlib
 pandas
 gradio
 chainlit
+fastapi
+uvicorn
 datasets
 psutil
 tensorflow

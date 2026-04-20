@@ -34,6 +34,7 @@ class TrainingConfig:
     seed: int = 123
     warmup_steps: int = 200
     grad_clip: float = 1.0
+    save_freq: int = 500
 
 
 @dataclass(frozen=True)
@@ -125,6 +126,7 @@ DEFAULT_GUTENBERG_TRAINING = TrainingConfig(
     seed=123,
     warmup_steps=400,
     grad_clip=1.0,
+    save_freq=500,
 )
 DEFAULT_INSTRUCTION_FINETUNE = TrainingConfig(
     batch_size=4,
@@ -140,6 +142,7 @@ DEFAULT_INSTRUCTION_FINETUNE = TrainingConfig(
     seed=123,
     warmup_steps=50,
     grad_clip=1.0,
+    save_freq=500,
 )
 DEFAULT_SPAM_CLASSIFIER = SpamClassifierConfig()
 DEFAULT_SPAM_CLASSIFIER_TRAINING = TrainingConfig(
@@ -156,6 +159,7 @@ DEFAULT_SPAM_CLASSIFIER_TRAINING = TrainingConfig(
     seed=123,
     warmup_steps=25,
     grad_clip=1.0,
+    save_freq=500,
 )
 DEFAULT_CHAT_GENERATION = GenerationConfig()
 

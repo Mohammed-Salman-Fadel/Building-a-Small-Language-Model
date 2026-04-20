@@ -35,11 +35,20 @@ from .generation import (
 )
 from .gutenberg import create_gutenberg_dataloaders, prepare_gutenberg_splits
 from .instruction_data import (
+    DEFAULT_DOLLY_MAX_SAMPLES,
+    DEFAULT_INSTRUCTION_DATASET,
+    DEFAULT_OASST_LANG,
+    DEFAULT_OASST_MAX_SAMPLES,
+    DEFAULT_ULTRACHAT_MAX_SAMPLES,
     InstructionDataset,
     create_instruction_dataloaders,
     custom_collate_fn,
     format_input,
+    load_dolly_instruction_splits,
     load_instruction_data,
+    load_instruction_splits,
+    load_oasst1_instruction_splits,
+    load_ultrachat_instruction_splits,
 )
 from .model import FeedForward, GELU, GPTModel, LayerNorm, MultiHeadAttention, TransformerBlock
 from .spam_data import SpamDataset, create_spam_dataloaders, load_spam_split
@@ -71,9 +80,14 @@ from .weights import download_and_load_gpt2, load_weights_into_gpt
 
 __all__ = [
     "DEFAULT_CHAT_GENERATION",
+    "DEFAULT_DOLLY_MAX_SAMPLES",
     "DEFAULT_GUTENBERG_MODEL",
     "DEFAULT_GUTENBERG_TRAINING",
+    "DEFAULT_INSTRUCTION_DATASET",
     "DEFAULT_INSTRUCTION_FINETUNE",
+    "DEFAULT_OASST_LANG",
+    "DEFAULT_OASST_MAX_SAMPLES",
+    "DEFAULT_ULTRACHAT_MAX_SAMPLES",
     "ChatRuntime",
     "GPT2_LARGE_774M",
     "GPT2_MEDIUM_355M",
@@ -124,8 +138,12 @@ __all__ = [
     "get_tokenizer",
     "heuristic_classify_text",
     "load_chat_runtime",
+    "load_dolly_instruction_splits",
     "load_instruction_data",
+    "load_instruction_splits",
     "load_model_and_metadata",
+    "load_oasst1_instruction_splits",
+    "load_ultrachat_instruction_splits",
     "load_spam_split",
     "load_spam_classifier_runtime",
     "load_weights_into_gpt",

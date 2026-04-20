@@ -7,6 +7,14 @@ import torch
 from torch.utils.data import DataLoader, Dataset
 
 
+def _build_generator(seed: int | None) -> torch.Generator | None:
+    if seed is None:
+        return None
+    generator = torch.Generator()
+    generator.manual_seed(seed)
+    return generator
+
+
 class GPTDatasetV1(Dataset):
     def __init__(self, txt: str, tokenizer: tiktoken.Encoding, max_length: int, stride: int) -> None:
         token_ids = tokenizer.encode(txt, allowed_special={"<|endoftext|>"})
@@ -49,6 +57,7 @@ def create_token_dataloader(
     shuffle: bool = True,
     drop_last: bool = True,
     num_workers: int = 0,
+    seed: int | None = None,
 ) -> DataLoader:
     dataset = TokenSequenceDataset(token_ids, max_length=max_length, stride=stride)
     return DataLoader(
@@ -57,6 +66,7 @@ def create_token_dataloader(
         shuffle=shuffle,
         drop_last=drop_last,
         num_workers=num_workers,
+        generator=_build_generator(seed),
     )
 
 
@@ -68,6 +78,7 @@ def create_dataloader_v1(
     shuffle: bool = True,
     drop_last: bool = True,
     num_workers: int = 0,
+    seed: int | None = None,
 ) -> DataLoader:
     tokenizer = tiktoken.get_encoding("gpt2")
     dataset = GPTDatasetV1(txt, tokenizer, max_length=max_length, stride=stride)
@@ -77,4 +88,5 @@ def create_dataloader_v1(
         shuffle=shuffle,
         drop_last=drop_last,
         num_workers=num_workers,
+        generator=_build_generator(seed),
     )

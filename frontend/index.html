@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LocalMind - Chat</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div class="logo">
+            <div class="logo-dot"></div>
+            LOCALMIND
+          </div>
+          <button class="model-badge" id="modelBadge" type="button" title="Reload model">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
+            </svg>
+            <span id="modelName">loading-model</span>
+          </button>
+        </div>
+
+        <button class="new-chat-btn" id="newChatBtn" type="button">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          NEW CONVERSATION
+        </button>
+
+        <div class="history-label">RECENT</div>
+        <div class="history-list" id="historyList">
+          <div class="history-empty">No saved conversations yet.</div>
+        </div>
+
+        <div class="sidebar-footer">
+          <button class="sf-btn" id="connectionStatus" type="button">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14" />
+            </svg>
+            Connection: checking
+          </button>
+          <button class="sf-btn" id="reloadBtn" type="button">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 1l4 4-4 4" />
+              <path d="M3 11V9a4 4 0 014-4h18" />
+              <path d="M7 23l-4-4 4-4" />
+              <path d="M21 13v2a4 4 0 01-4 4H3" />
+            </svg>
+            Reload model
+          </button>
+          <button class="sf-btn" id="clearAllBtn" type="button">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6l-1 14H6L5 6" />
+              <path d="M10 11v6M14 11v6" />
+            </svg>
+            Clear all history
+          </button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="topbar">
+          <span class="topbar-title" id="topbarTitle">// new conversation</span>
+          <div class="topbar-actions">
+            <button class="icon-btn" id="exportBtn" type="button" title="Export chat">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+            </button>
+            <button class="icon-btn" id="copyAllBtn" type="button" title="Copy all">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" />
+                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+              </svg>
+            </button>
+            <button class="icon-btn" id="clearChatBtn" type="button" title="Clear chat">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6l-1 14H6L5 6" />
+                <path d="M10 11v6M14 11v6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="messages" id="messages">
+          <div class="empty-state" id="emptyState">
+            <div class="empty-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+              </svg>
+            </div>
+            <div class="empty-title">Start a conversation</div>
+            <div class="empty-sub">
+              Your local model is ready after training and fine-tuning. Conversations run through the checkpoint on this machine.
+            </div>
+            <div class="suggestions">
+              <button class="suggestion" type="button" data-prompt="Introduce yourself in one short sentence.">-> Introduce yourself in one short sentence</button>
+              <button class="suggestion" type="button" data-prompt="What is 2 plus 2? Answer briefly.">-> Answer a simple reasoning prompt</button>
+              <button class="suggestion" type="button" data-prompt="Write one vivid sentence about a quiet library at night.">-> Write a short creative sample</button>
+              <button class="suggestion" type="button" data-prompt="Explain how attention mechanisms work in transformers in simple terms.">-> Explain attention mechanisms</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+          <div class="typing-inner">
+            <div class="avatar avatar-bot">AI</div>
+            <div class="typing-dots">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-area">
+          <div class="status-bar">
+            <div class="status-dot" id="runtimeDot"></div>
+            <span id="runtimeStatus">CONNECTING - local model runtime</span>
+          </div>
+          <div class="input-wrap">
+            <textarea
+              id="inputBox"
+              placeholder="Message your model..."
+              rows="1"
+              maxlength="4000"
+              aria-label="Message your local model"
+            ></textarea>
+            <div class="input-footer">
+              <div class="input-left">
+                <button class="attach-btn" id="lowerTempBtn" type="button">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2v20M5 9l7-7 7 7" />
+                  </svg>
+                  TEMP 0.4
+                </button>
+                <button class="attach-btn" id="balancedTempBtn" type="button">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M8 12h8" />
+                  </svg>
+                  TEMP 0.8
+                </button>
+              </div>
+              <div class="input-right">
+                <span class="char-count" id="charCount">0 / 4000</span>
+                <button class="stop-btn" id="stopBtn" type="button">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="4" y="4" width="16" height="16" rx="2" />
+                  </svg>
+                  STOP
+                </button>
+                <button class="send-btn" id="sendBtn" type="button" disabled>
+                  SEND
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="22" y1="2" x2="11" y2="13" />
+                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>
